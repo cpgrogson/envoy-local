@@ -40,11 +40,16 @@ def validate(config: EnvoyConfig) -> ValidationResult:
     return ValidationResult(errors=errors)
 
 
+def _is_valid_port(port: int) -> bool:
+    """Return True if the given port number is within the valid range (1-65535)."""
+    return 1 <= port <= 65535
+
+
 def _check_ports(config: EnvoyConfig, errors: List[ValidationError]) -> None:
-    if not (1 <= config.listener.port <= 65535):
+    if not _is_valid_port(config.listener.port):
         errors.append(ValidationError("listener.port", f"Port {config.listener.port} is out of valid range (1-65535)."))
 
-    if not (1 <= config.admin_port <= 65535):
+    if not _is_valid_port(config.admin_port):
         errors.append(ValidationError("admin_port", f"Admin port {config.admin_port} is out of valid range (1-65535)."))
 
     if config.listener.port == config.admin_port:
@@ -71,5 +76,5 @@ def _check_upstreams(config: EnvoyConfig, errors: List[ValidationError]) -> None
         if not upstream.host:
             errors.append(ValidationError(f"{prefix}.host", "Upstream host must not be empty."))
 
-        if not (1 <= upstream.port <= 65535):
+        if not _is_valid_port(upstream.port):
             errors.append(ValidationError(f"{prefix}.port", f"Port {upstream.port} is out of valid range (1-65535)."))
