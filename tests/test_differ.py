@@ -49,6 +49,18 @@ def test_flatten_list():
     assert result["items[1]"] == 20
 
 
+def test_flatten_empty_dict():
+    result = dict(_flatten({}))
+    assert result == {}
+
+
+def test_flatten_mixed_nested():
+    """Verify that dicts nested inside lists are also flattened."""
+    result = dict(_flatten({"a": [{"b": 1}, {"b": 2}]}))
+    assert result["a[0].b"] == 1
+    assert result["a[1].b"] == 2
+
+
 # ---------------------------------------------------------------------------
 # diff_snapshots — identical configs
 # ---------------------------------------------------------------------------
@@ -87,21 +99,4 @@ def test_diff_checksums_recorded(snap_a, snap_b):
 # SnapshotDiff.summary
 # ---------------------------------------------------------------------------
 
-def test_summary_no_changes():
-    diff = SnapshotDiff(old_checksum="abc", new_checksum="abc", entries=[])
-    assert diff.summary() == "No changes detected."
-
-
-def test_summary_with_changes(snap_a, snap_b):
-    result = diff_snapshots(snap_a, snap_b)
-    summary = result.summary()
-    assert "Changes" in summary
-    assert "->"
-    in summary
-
-
-def test_diff_entry_str():
-    entry = DiffEntry(path="listener.port", old_value=8080, new_value=9090)
-    assert "listener.port" in str(entry)
-    assert "8080" in str(entry)
-    assert "9090" in str(entry)
+def test_summary_no_cha
