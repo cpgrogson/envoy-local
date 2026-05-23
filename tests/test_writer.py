@@ -56,6 +56,16 @@ def test_write_config_stdout_returns_none(simple_config, capsys):
     assert isinstance(parsed, dict)
 
 
+def test_write_config_overwrites_existing_file(simple_config, tmp_path):
+    """Writing config twice to the same path should overwrite without error."""
+    result_first = write_config(simple_config, output_dir=str(tmp_path))
+    original_content = result_first.read_text(encoding="utf-8")
+
+    result_second = write_config(simple_config, output_dir=str(tmp_path))
+    assert result_second.exists()
+    assert result_second.read_text(encoding="utf-8") == original_content
+
+
 def test_load_config_from_file_returns_dict(tmp_path):
     config_file = tmp_path / "test.yaml"
     config_file.write_text("static_resources:\n  clusters: []\n", encoding="utf-8")
