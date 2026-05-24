@@ -31,8 +31,21 @@ class ConfigSummary:
         return {line.label: line.value for line in self.lines}
 
 
+def _get_route_prefix(config: EnvoyConfig) -> str:
+    """Return the route prefix from the listener, defaulting to '/' if not set."""
+    return getattr(config.listener, "route_prefix", "/") or "/"
+
+
 def summarize(config: EnvoyConfig) -> ConfigSummary:
-    """Build a ConfigSummary from an EnvoyConfig instance."""
+    """Build a ConfigSummary from an EnvoyConfig instance.
+
+    Args:
+        config: The EnvoyConfig to summarize.
+
+    Returns:
+        A ConfigSummary containing human-readable key/value lines describing
+        the listener, admin interface, upstreams, and routing configuration.
+    """
     summary = ConfigSummary()
 
     summary.add("Listener port", str(config.listener.port))
@@ -50,7 +63,6 @@ def summarize(config: EnvoyConfig) -> ConfigSummary:
         hosts = ", ".join(f"{u.host}:{u.port}" for u in config.upstreams)
         summary.add("Upstream addresses", hosts)
 
-    route_prefix = config.listener.route_prefix if hasattr(config.listener, "route_prefix") else "/"
-    summary.add("Route prefix", str(route_prefix))
+    summary.add("Route prefix", _get_route_prefix(config))
 
     return summary
