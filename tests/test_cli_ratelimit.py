@@ -56,6 +56,11 @@ def test_register_custom_descriptor_key(parser):
     assert args.descriptor_key == "destination_cluster"
 
 
+def test_register_custom_descriptor_value(parser):
+    args = parser.parse_args(["ratelimit", "--descriptor-value", "my-cluster"])
+    assert args.descriptor_value == "my-cluster"
+
+
 def test_cmd_ratelimit_valid_returns_zero(parser, capsys):
     args = parser.parse_args(["ratelimit", "--requests", "100", "--unit", "SECOND"])
     result = cmd_ratelimit(args)
@@ -74,3 +79,9 @@ def test_cmd_ratelimit_output_contains_stage(parser, capsys):
     captured = capsys.readouterr()
     assert "stage" in captured.out
     assert "2" in captured.out
+
+
+def test_cmd_ratelimit_negative_requests_returns_one(parser, capsys):
+    args = parser.parse_args(["ratelimit", "--requests", "-5"])
+    result = cmd_ratelimit(args)
+    assert result == 1
