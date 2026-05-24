@@ -42,6 +42,20 @@ class CORSPolicy:
             policy["expose_headers"] = self.expose_headers
         return policy
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "CORSPolicy":
+        """Create a CORSPolicy from a plain dictionary, ignoring unknown keys."""
+        known_fields = {
+            "allow_origin_string_match",
+            "allow_methods",
+            "allow_headers",
+            "expose_headers",
+            "max_age",
+            "allow_credentials",
+        }
+        filtered = {k: v for k, v in data.items() if k in known_fields}
+        return cls(**filtered)
+
 
 def default_cors_policy() -> CORSPolicy:
     return CORSPolicy()
